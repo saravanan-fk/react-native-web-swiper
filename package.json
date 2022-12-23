@@ -1,5 +1,5 @@
 {
-  "name": "react-native-web-swiper",
+  "name": "rnw-swiper",
   "version": "2.2.4",
   "homepage": "https://github.com/reactrondev/react-native-web-swiper#readme",
   "types": "./index.d.ts",
@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reactrondev/react-native-web-swiper.git"
+    "url": "git+https://github.com/saravanan-fk/react-native-web-swiper.git"
   },
   "scripts": {
     "build": "rm -rf build && babel src --out-dir build",
@@ -32,5 +32,10 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-transform-react-jsx": "^7.3.0",
     "babel-preset-minify": "^0.5.0"
-  }
+  },
+  "description": "Fork of 'react-native-web-swiper' with infinite loop",
+  "bugs": {
+    "url": "https://github.com/reactrondev/react-native-web-swiper/issues"
+  },
+  "author": "reactrondev"
 }

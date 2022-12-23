@@ -9,6 +9,7 @@ const useNativeDriver = false; // because of RN #13377
 class Swiper extends React.Component {
   children = (() => React.Children.toArray(this.props.children))();
   count = (() => this.children.length)();
+  infinite = this.props.loop && this.count > 1;
 
   startAutoplay() {
     const { timeout } = this.props;
@@ -149,18 +150,38 @@ class Swiper extends React.Component {
   _spring(toValue) {
     const { springConfig, onAnimationEnd } = this.props;
     const { activeIndex } = this.state;
+
+    let shouldFixState = false;
+    if (this.infinite) {
+      if (activeIndex <= -1) {
+        this.setState({
+          activeIndex: this.count - 1,
+        });
+        shouldFixState = true;
+      } else if (activeIndex >= this.count) {
+        this.setState({
+          activeIndex: 0,
+        });
+        shouldFixState = true;
+      }
+    }
     Animated.spring(this.state.pan, {
       ...springConfig,
       toValue,
       useNativeDriver, // false, see top of file
-    }).start(() => onAnimationEnd && onAnimationEnd(activeIndex));
+    }).start(() => {
+      if (this.infinite && shouldFixState) {
+        this._fixState();
+      }
+      onAnimationEnd && onAnimationEnd(activeIndex);
+    });
   }
 
   _fixState() {
     const { vertical } = this.props;
     const { width, height, activeIndex } = this.state;
-    this._animatedValueX = vertical ? 0 : width * activeIndex * (I18nManager.isRTL ? 1 : -1);
-    this._animatedValueY = vertical ? height * activeIndex * -1 : 0;
+    this._animatedValueX = vertical ? 0 : width * (activeIndex + (+this.infinite)) * (I18nManager.isRTL ? 1 : -1);
+    this._animatedValueY = vertical ? height * (activeIndex + (+this.infinite)) * -1 : 0;
     this.state.pan.setOffset({
       x: this._animatedValueX,
       y: this._animatedValueY,
@@ -183,10 +204,10 @@ class Swiper extends React.Component {
     let skipChanges = !delta;
     let calcDelta = delta;
 
-    if (activeIndex <= 0 && delta < 0) {
+    if (activeIndex <= (0 - (+this.infinite)) && delta < 0) {
       skipChanges = !loop;
       calcDelta = this.count + delta;
-    } else if (activeIndex + 1 >= this.count && delta > 0) {
+    } else if (activeIndex + (1 - (+this.infinite)) >= this.count && delta > 0) {
       skipChanges = !loop;
       calcDelta = -1 * activeIndex + delta - 1;
     }
@@ -257,6 +278,17 @@ class Swiper extends React.Component {
             ])}
             {...this._panResponder.panHandlers}
           >
+            {this.infinite &&
+              <View
+                key={-1}
+                style={StyleSheet.flatten([
+                  { width, height },
+                  slideWrapperStyle,
+                ])}
+              >
+                {cloneElement(this.children[this.children.length - 1], { activeIndex: this.getActiveIndex(), index: -1, isActive: -1 === this.getActiveIndex(), key: -1 })}
+              </View>
+            }
             {this.children.map((el, i) => (
               <View
                 key={i}
@@ -268,6 +300,17 @@ class Swiper extends React.Component {
                 {cloneElement(el, { activeIndex: this.getActiveIndex(), index: i, isActive: i === this.getActiveIndex() })}
               </View>
             ))}
+            {this.infinite &&
+              <View
+                key={this.children.length}
+                style={StyleSheet.flatten([
+                  { width, height },
+                  slideWrapperStyle,
+                ])}
+              >
+                {cloneElement(this.children[0], { activeIndex: this.getActiveIndex(), index: this.children.length, isActive: this.children.length === this.getActiveIndex(), key: this.children.length })}
+              </View>
+            }
           </Animated.View>
           {controlsEnabled && (
             <Controls
