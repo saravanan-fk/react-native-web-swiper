@@ -94,6 +94,10 @@ class Swiper extends React.Component {
     this.state.pan.y.removeAllListeners();
   }
 
+  _indexInRange(index) {
+    return index >=0 && index < this.count;
+  }
+
   _getPanResponderCallbacks() {
     return {
       onPanResponderTerminationRequest: () => false,
@@ -105,8 +109,9 @@ class Swiper extends React.Component {
           return false;
         }
 
-        this.props.onAnimationStart &&
+        if (this.props.onAnimationStart && this._indexInRange(this.getActiveIndex())) {
           this.props.onAnimationStart(this.getActiveIndex());
+        }
 
         const allow =
           Math.abs(vertical ? gestureState.dy : gestureState.dx) >
@@ -191,8 +196,10 @@ class Swiper extends React.Component {
 
   _fixAndGo(delta) {
     this._fixState();
-    this.props.onAnimationStart &&
+    if (this.props.onAnimationStart && this._indexInRange(this.getActiveIndex())) {
       this.props.onAnimationStart(this.getActiveIndex());
+    }
+
     this._changeIndex(delta);
   }
 
@@ -229,7 +236,9 @@ class Swiper extends React.Component {
     this._spring(toValue);
 
     this.startAutoplay();
-    this.props.onIndexChanged && this.props.onIndexChanged(index);
+    if (this.props.onIndexChanged && this._indexInRange(index)) {
+      this.props.onIndexChanged(index);
+    }
   }
 
   _onLayout({
