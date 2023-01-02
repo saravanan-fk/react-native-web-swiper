@@ -1,6 +1,6 @@
 {
   "name": "rnw-swiper",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "homepage": "https://github.com/reactrondev/react-native-web-swiper#readme",
   "types": "./index.d.ts",
   "main": "build/index.js",

@@ -178,7 +178,9 @@ class Swiper extends React.Component {
       if (this.infinite && shouldFixState) {
         this._fixState();
       }
-      onAnimationEnd && onAnimationEnd(activeIndex);
+      if (onAnimationEnd && this._indexInRange(activeIndex)) {
+        onAnimationEnd(activeIndex);
+      }
     });
   }
 
@@ -226,19 +228,19 @@ class Swiper extends React.Component {
     this.stopAutoplay();
 
     let index = activeIndex + calcDelta;
-    this.setState({ activeIndex: index });
-
     if (vertical) {
       toValue.y = height * -1 * calcDelta;
     } else {
       toValue.x = width * (I18nManager.isRTL ? 1 : -1) * calcDelta;
     }
-    this._spring(toValue);
+    this.setState({ activeIndex: index }, () => {
+      this._spring(toValue);
 
-    this.startAutoplay();
-    if (this.props.onIndexChanged && this._indexInRange(index)) {
-      this.props.onIndexChanged(index);
-    }
+      this.startAutoplay();
+      if (this.props.onIndexChanged && this._indexInRange(index)) {
+        this.props.onIndexChanged(index);
+      }
+    });
   }
 
   _onLayout({
