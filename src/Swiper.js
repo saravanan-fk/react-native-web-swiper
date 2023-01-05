@@ -132,13 +132,17 @@ class Swiper extends React.Component {
       ], { useNativeDriver: false }),
       onPanResponderRelease: (e, gesture) => {
         const { vertical, minDistanceForAction } = this.props;
-        const { width, height } = this.state;
+        const { width, height, activeIndex } = this.state;
 
         this.startAutoplay();
 
         const correction = vertical
           ? gesture.moveY - gesture.y0
           : gesture.moveX - gesture.x0;
+
+        if (this.props.onSwipe && this._indexInRange(activeIndex)) {
+          this.props.onSwipe(activeIndex);
+        }
 
         if (
           Math.abs(correction) <
@@ -376,6 +380,8 @@ Swiper.propTypes = {
   Controls: PropTypes.func,
 
   theme: PropTypes.object,
+
+  onSwipe: PropTypes.func,
 };
 
 Swiper.defaultProps = {

@@ -335,6 +335,13 @@ export interface SwiperProps {
      *  Children props for functional components
     */
     children?: React.ReactNode;
+
+    /**
+     * Called when user swipes the card
+     *
+     * @param index
+     */
+    onSwipe?(index: number): void;
 }
 
 /**
